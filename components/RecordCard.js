@@ -1,4 +1,5 @@
 import React from "react";
+import Button from "./Button";
 
 const RecordCard = (props) => {
   const { record } = props;
@@ -14,7 +15,11 @@ const RecordCard = (props) => {
         <span>Total Poluation:</span> {record.totalPopulation}
       </div>
       <div className="">
-        <span>Area</span> {record.area} Km2
+        <span>Area</span> {record.area} Km²
+      </div>
+      <div className="action flex flex-row justify-between mt-4">
+        <Button label="Edit" variant="edit" onClick={() => {}} />
+        <Button label="Delete" variant="delete" onClick={() => {}} />
       </div>
     </div>
   );

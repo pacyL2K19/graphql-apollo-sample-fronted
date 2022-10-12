@@ -4,9 +4,13 @@ import { gql } from "@apollo/client";
 import { helperInstance } from "../utils/helpers";
 import client from "../utils/apollo-client";
 import RecordCard from "../components/RecordCard";
+import ReactPaginate from "react-paginate";
+import Form from "../components/Form";
+import { useState } from "react";
 
 export default function Home({ records, numberOfPages }) {
-  console.log("records", records, numberOfPages);
+  // console.log("records", records, numberOfPages);
+  const [showFormModal, setShowFormModal] = useState(false);
   return (
     <div className={styles.container}>
       <Head>
@@ -27,7 +31,9 @@ export default function Home({ records, numberOfPages }) {
 
       <div className="form my-5 text-center ">
         {/* <input className="" placeholder="search for a record" /> */}
-        <button className="btn-new">Create a new record</button>
+        <button className="btn-new" onClick={() => setShowFormModal(true)}>
+          Create a new record
+        </button>
       </div>
 
       <div className="grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 grid py-4">
@@ -35,6 +41,12 @@ export default function Home({ records, numberOfPages }) {
           <RecordCard record={record} key={record.id} />
         ))}
       </div>
+      <Form
+        initialValues={null}
+        visible={showFormModal}
+        onSubmit={() => {}}
+        hide={() => setShowFormModal(false)}
+      />
     </div>
   );
 }
