@@ -1,9 +1,12 @@
-import React, { useState } from "react";
-import { formInputs } from "../utils/constants";
+import React, { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import Button from "./Button";
 import Modal from "react-modal";
+
+// HELPERS
+import { formInputs } from "../utils/constants";
 import { useMutation } from "@apollo/client";
-import { CREATE_RECORD } from "../resolvers/mutations/records";
+import { CREATE_RECORD, UPDATE_RECORD } from "../resolvers/mutations/records";
 
 // STYLES
 const customStyles = {
@@ -18,64 +21,75 @@ const customStyles = {
   },
 };
 
-const Form = ({
-  initialValues,
-  onSubmit = () => {},
-  visible = false,
-  hide = () => {},
-  onChange = () => {},
-}) => {
-  const [formValue, setFormValue] = useState(initialValues);
+const Form = ({ initialValues, visible = false, hide = () => {} }) => {
+  // STATES
+  const [formValues, setFormValues] = useState(initialValues);
   const [loading, setLoading] = useState(false);
+  const [reloadHome, setReloadHome] = useState(false);
 
+  // MUTATIONS
   const [createRecord] = useMutation(CREATE_RECORD);
-
-  // const [updateRecord] = useMutation(UPDATE_RECORD, {
-  //   variables: {
-  //     id: formValue.id,
-  //     country: formValue.country,
-  //     year: formValue.year,
-  //     totalPopulation: formValue.totalPopulation,
-  //     area: formValue.area,
-  //   },
-  // });
+  const [updateRecord] = useMutation(UPDATE_RECORD);
 
   const resetForm = () => {
-    setFormValue(initialValues);
+    setFormValues(initialValues);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       setLoading(true);
-      if (formValue.id) {
-        const res = await updateRecord();
-      } else {
-        const res = await createRecord({
+      if (formValues.id) {
+        setLoading(true);
+        const res = await updateRecord({
           variables: {
+            id: formValues.id,
             data: {
-              country: formValue.country,
-              year: formValue.year.toString(),
-              totalPopulation: Number(formValue.totalPopulation),
-              area: Number(formValue.area),
+              country: formValues.country,
+              year: formValues.year.toString(),
+              totalPopulation: Number(formValues.totalPopulation),
+              area: Number(formValues.area),
             },
           },
         });
         setLoading(false);
         resetForm();
-        // console.log(res, dataCreate, loadingCreate, errorCreate);
+        hide(true);
+        toast.success("Record updated successfully");
+      } else {
+        const res = await createRecord({
+          variables: {
+            data: {
+              country: formValues.country,
+              year: formValues.year.toString(),
+              totalPopulation: Number(formValues.totalPopulation),
+              area: Number(formValues.area),
+            },
+          },
+        });
+        setLoading(false);
+        resetForm();
+        setReloadHome(true);
+        toast.success("Record created successfully, do you want to enter more?");
       }
     } catch (error) {
       console.warn(error);
+      setLoading(false);
+      toast.error("Something went wrong");
     }
   };
 
   const handleChange = (e, input) => {
-    setFormValue({
-      ...formValue,
+    setFormValues({
+      ...formValues,
       [input]: e.target.value,
     });
   };
+
+  useEffect(() => {
+    console.log("SEE", initialValues);
+    setFormValues(initialValues);
+  }, [initialValues]);
 
   return (
     <Modal
@@ -96,7 +110,7 @@ const Form = ({
               type={input.type}
               placeholder={input.placeholder}
               className="my-2 w-96 p-2 rounded"
-              value={formValue[input.name]}
+              value={formValues[input.name]}
               onChange={(e) => handleChange(e, input.name)}
             />
             <br />
@@ -104,11 +118,15 @@ const Form = ({
         ))}
         <div className="flex flex-row justify-between">
           <Button
-            label={loading ? "..." : formInputs.id ? "Update" : "Create"}
+            label={loading ? "..." : formValues.id ? "Update" : "Create"}
             variant="new"
             onClick={handleSubmit}
           />
-          <Button label="Cancel" variant="cancel" onClick={hide} />
+          <Button
+            label="Cancel"
+            variant="cancel"
+            onClick={() => hide(reloadHome)}
+          />
         </div>
       </div>
     </Modal>

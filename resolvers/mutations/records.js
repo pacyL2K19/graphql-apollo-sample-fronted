@@ -24,4 +24,10 @@ const UPDATE_RECORD = gql`
   }
 `;
 
-export { CREATE_RECORD, UPDATE_RECORD };
+const DELETE_RECORD = gql`
+  mutation DeleteRecord($id: ID!) {
+    deleteRecord(id: $id)
+  }
+`;
+
+export { CREATE_RECORD, UPDATE_RECORD, DELETE_RECORD };

@@ -3,7 +3,7 @@
  */
 export default class Helpers {
   constructor() {}
-  itemsPerPage = 10;
+  itemsPerPage = 8;
 
   /**
    *
