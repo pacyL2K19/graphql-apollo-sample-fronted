@@ -24,3 +24,12 @@ export const formInputs = [
     placeholder: "Area",
   },
 ];
+
+export const initialFormValues = {
+  country: "",
+  year: 0,
+  totalPopulation: 0,
+  area: 0,
+}
+
+export const PAGE_ROUND_DISPLAYED = 5;

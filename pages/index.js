@@ -1,16 +1,20 @@
 import Head from "next/head";
 import styles from "../styles/Home.module.css";
-import { gql } from "@apollo/client";
 import { helperInstance } from "../utils/helpers";
 import client from "../utils/apollo-client";
 import RecordCard from "../components/RecordCard";
-import ReactPaginate from "react-paginate";
 import Form from "../components/Form";
 import { useState } from "react";
+import { initialFormValues } from "../utils/constants";
+import Button from "../components/Button";
+import GET_ALL_RECORDS from "../resolvers/queries/records";
 
 export default function Home({ records, numberOfPages }) {
-  // console.log("records", records, numberOfPages);
   const [showFormModal, setShowFormModal] = useState(false);
+  const [initialValues, setInitialValues] = useState(initialFormValues);
+  const [currentPage, setCurrentPage] = useState(1);
+  // const [itemOffset, setItemOffset] = useState(0);
+
   return (
     <div className={styles.container}>
       <Head>
@@ -41,8 +45,22 @@ export default function Home({ records, numberOfPages }) {
           <RecordCard record={record} key={record.id} />
         ))}
       </div>
+      <div className="flex flex-row gap-5">
+        <Button
+          disabled={currentPage === 1}
+          label="< Prev"
+          onClick={() => handleChangePage("next")}
+          variant="new"
+        />
+        <Button
+          disabled={currentPage === numberOfPages}
+          label="Next >"
+          onClick={() => handleChangePage("prev")}
+          variant="new"
+        />
+      </div>
       <Form
-        initialValues={null}
+        initialValues={initialValues}
         visible={showFormModal}
         onSubmit={() => {}}
         hide={() => setShowFormModal(false)}
@@ -53,18 +71,8 @@ export default function Home({ records, numberOfPages }) {
 
 export async function getStaticProps() {
   const { data } = await client.query({
-    query: gql`
-      query Query {
-        getAllRecords(limit: ${helperInstance.itemsPerPage}, skip: 0) {
-          id
-          country
-          year
-          totalPopulation
-          area
-        }
-        getRecordCount
-      }
-    `,
+    query: GET_ALL_RECORDS,
+    variables: { limit: helperInstance.itemsPerPage, skip: 0 },
   });
 
   return {
